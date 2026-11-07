@@ -6,12 +6,14 @@
   "domainAvailabilityVerified": false,
   "supabaseProjectName": "magazzino-farmaci-cdom-test",
   "coordinatorEmail": "monica.silini@finisterre.medicair.it",
-  "docling": {
-    "optionalForManualInventoryTest": true,
-    "candidateHost": "vmi2636562.contaboserver.net",
-    "hostInspected": false,
-    "serviceInstalled": false
-  },
   "automaticDeployment": false,
-  "externalServicesConnected": false
+  "externalServicesConnected": false,
+  "ocr": {
+    "engine": "Tesseract.js",
+    "execution": "browser",
+    "pdfRenderer": "PDF.js",
+    "maxPages": 20,
+    "maxFileMiB": 12,
+    "serverRequired": false
+  }
 }

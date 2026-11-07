@@ -40,8 +40,6 @@ Quando si deciderà di procedere manualmente:
 | `NEXT_PUBLIC_APP_URL` | URL HTTPS effettivamente assegnato, senza slash finale |
 | `NEXT_PUBLIC_SUPABASE_URL` | URL del nuovo Supabase test |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Chiave pubblica anon/publishable di quel progetto |
-| `DOCLING_API_URL` | Lasciare vuota per il primo collaudo manuale |
-| `DOCLING_API_TOKEN` | Lasciare vuota per il primo collaudo manuale |
 
 `vercel.json` imposta `git.deploymentEnabled=false`: i push Git non devono generare deploy automatici. Non è un blocco dei deploy manuali: non premere Deploy e non eseguire comandi di pubblicazione finché non si intende avviarli. La workflow GitHub esegue test e build, senza pubblicare né applicare migrazioni cloud.
 
@@ -81,13 +79,15 @@ Sequenza suggerita, partendo dalle fixture appena inserite:
 
 Il file `bolla-sintetica-200dpi.pdf` della precedente consegna è un documento di prova OCR: nel collaudo manuale associare esplicitamente le sue righe ai prodotti TEST. La ricezione di materiale e il successivo ordine sono movimenti distinti; lo scarico avviene alla riserva autorizzata, non una seconda volta quando viene segnato Consegnato.
 
-## 5. VPS Contabo e OCR
+## 5. OCR nel browser
 
-Host indicato: `vmi2636562.contaboserver.net`. Non è stato interrogato via SSH, ispezionato, modificato o avviato alcun servizio. Non sono quindi noti risorse, sistema operativo, porte, certificati o servizi esistenti.
+I PDF dello scanner, anche multipagina, vengono rasterizzati da PDF.js e letti con Tesseract.js nel browser del coordinatore. Worker, motore WASM e lingua italiana sono serviti dall'applicazione stessa: nessun endpoint OCR esterno, token OCR o VPS è necessario. Le pagine standard sono lette a 200 DPI; i formati molto grandi sono limitati a 12 milioni di pixel per pagina per contenere la memoria. Limiti: 12 MiB, 20 pagine, 80.000 caratteri e 300 righe proposte. Il tempo dipende dal computer e dalla qualità della scansione.
 
-**La VPS non è necessaria al collaudo manuale del magazzino**, accessi, fornitori, richieste, assegnazioni, carichi/scarichi e permessi. Serve un servizio Python separato solo per l'OCR Docling previsto dall'architettura: Vercel esegue l'app Next.js e Supabase database/Auth/Storage; il processo Docling non è previsto dentro queste funzioni Next.js.
+L'upload privato rimane su Supabase. Il testo riconosciuto viene salvato solo con i dati verificati della bolla. Il coordinatore può correggere fornitore, numero/data, codici, descrizioni, prodotti, quantità, lotti e scadenze. I fornitori sono proposti solo tra quelli configurati: un marchio non genera un fornitore. Le righe vengono abbinate usando codici del fornitore selezionato; i codici ambigui richiedono scelta manuale.
 
-La VPS Contabo può essere una candidata, ma la sua idoneità richiederà in una fase successiva un controllo autorizzato di RAM/CPU/disco, Docker e servizi già presenti. La configurazione preparata propone 6 GB RAM e 2 CPU per il contenitore, senza aver misurato la VPS. Prima di attivarla serviranno endpoint HTTPS, autenticazione server e volumi privati; non basta impostare il nome host come URL Docling. Per ora non eseguire Compose, non installare pacchetti e lasciare vuote le due variabili OCR.
+Disattivare «OCR nel browser dopo il caricamento» per compilare interamente a mano. Dopo aver corretto i dati premere Salva, controllare nuovamente l'originale e poi Conferma carico: il primo comando non cambia le giacenze. Lotto e scadenza si possono lasciare vuoti quando non presenti; non vengono inventati valori. Un lotto senza scadenza viene mantenuto distinto, senza classificarlo come scaduto.
+
+La VPS `vmi2636562.contaboserver.net` non viene utilizzata né deve essere configurata. Non è stata contattata, ispezionata o modificata.
 
 ## Riferimenti ufficiali
 

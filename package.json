@@ -6,13 +6,14 @@
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src/app/management.tsx src/lib/pharmacy/matching.ts src/app/api/ocr/route.ts",
-    "test": "node --experimental-strip-types scripts/test-database.mjs && node --experimental-strip-types scripts/test-matching.mjs && node scripts/check-collaudo.mjs --self-test && node scripts/test-collaudo-package.mjs",
+    "lint": "eslint src/app/management.tsx src/lib/pharmacy/matching.ts src/lib/pharmacy/scan-extraction.ts",
+    "test": "node --experimental-strip-types scripts/test-database.mjs && node --experimental-strip-types scripts/test-matching.mjs && node scripts/check-collaudo.mjs --self-test && node scripts/test-collaudo-package.mjs && node --experimental-strip-types scripts/test-scan-extraction.mjs",
     "typecheck": "tsc --noEmit",
     "prebuild": "node scripts/prepare-assets.mjs",
     "predev": "node scripts/prepare-assets.mjs",
     "check:collaudo": "node scripts/check-collaudo.mjs",
-    "prepare:collaudo": "node scripts/prepare-collaudo.mjs"
+    "prepare:collaudo": "node scripts/prepare-collaudo.mjs",
+    "test:ocr": "node scripts/prepare-assets.mjs && node --experimental-strip-types scripts/test-browser-ocr.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.3.14",
     "@eslint/eslintrc": "^3",
+    "@napi-rs/canvas": "^0.1.100",
     "@tailwindcss/postcss": "^4",
     "@tesseract.js-data/ita": "1.0.0",
     "@types/node": "^20",
