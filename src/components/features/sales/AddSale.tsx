@@ -336,7 +336,7 @@ export default function AddSale({
 
                 <div className="flex items-center gap-3">
                   <span className="font-semibold">
-      {formatCurrency(item.sell_price * item.quantity)}
+                    {formatCurrency(item.sell_price * item.quantity)}
                   </span>
                   <button
                     type="button"

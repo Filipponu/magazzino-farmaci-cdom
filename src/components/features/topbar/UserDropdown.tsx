@@ -66,7 +66,7 @@ export default function UserDropdown({ user }: { user: User }) {
                 </p>
                 <p
                   className="text-xs text-gray-500 truncate"
-          title={user.email}
+                  title={user.email}
                 >
                   {user.email}
                 </p>

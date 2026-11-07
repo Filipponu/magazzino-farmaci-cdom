@@ -81,7 +81,7 @@ export default function OrderTable({
                   onViewItems={() => setViewingOrderItems(order)}
                 />
               ))}
-              {orders.length=== 0 && (
+              {orders.length === 0 && (
               <tr>
                 <td
                   colSpan={4}

@@ -6,7 +6,7 @@ import {
   formatDisplayPhoneNumber,
   formatToLocalPhone,
 } from "@/lib/utils/formatters";
-import {copyToClipboard } from "@/lib/utils/clipboard";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 import { Button } from "@/components/ui/Button";
 import { EditIcon, DeleteIcon, SaveIcon, CloseIcon } from "@/components/icons";
 import { Customer } from "@/lib/types";
