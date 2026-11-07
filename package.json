@@ -6,8 +6,8 @@
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "test": "node --experimental-strip-types scripts/test-database.mjs",
+    "lint": "eslint src/app/management.tsx src/lib/pharmacy/matching.ts src/app/api/ocr/route.ts",
+    "test": "node --experimental-strip-types scripts/test-database.mjs && node --experimental-strip-types scripts/test-matching.mjs",
     "typecheck": "tsc --noEmit",
     "prebuild": "node scripts/prepare-assets.mjs",
     "predev": "node scripts/prepare-assets.mjs"
@@ -30,11 +30,13 @@
     "@tailwindcss/postcss": "^4",
     "@tesseract.js-data/ita": "1.0.0",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "baseline-browser-mapping": "^2.8.32",
     "eslint": "^9",
     "eslint-config-next": "15.2.0",
+    "pg": "^8.23.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

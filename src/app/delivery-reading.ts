@@ -1,4 +1,4 @@
-export type DeliveryLine={key:string,id:number,qty:string,source:string};
+export type DeliveryLine={key:string,id:number,qty:string,source:string;lot?:string;expires?:string};
 const normalize=(s:string)=>s.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/g,' ').trim();
 export function suggestDelivery(text:string,products:any[]){
  const lines:DeliveryLine[]=[];const used=new Set();
