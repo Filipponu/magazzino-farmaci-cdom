@@ -45,6 +45,7 @@ export async function scenarios({db,assert,action,login,admin,operator,outsider,
  await assert.rejects(()=>db.query('select pharmacy_order($1)',[request(3).id]),/non accessibile/);
  const data=(await db.query('select pharmacy_data() d')).rows[0].d;
  assert.equal('lots' in data,false);assert.equal('suppliers' in data,false);
+ assert.equal(data.products.find(p=>p.id===pid).orderLimit,0);
  await db.exec('reset role');
  await login(admin,'owner@example.test');await db.exec('set role authenticated');
  assert.ok((await db.query("select * from storage.objects where bucket_id='bolle'")).rows.length>0);
