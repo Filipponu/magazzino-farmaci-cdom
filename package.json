@@ -7,10 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint src/app/management.tsx src/lib/pharmacy/matching.ts src/app/api/ocr/route.ts",
-    "test": "node --experimental-strip-types scripts/test-database.mjs && node --experimental-strip-types scripts/test-matching.mjs",
+    "test": "node --experimental-strip-types scripts/test-database.mjs && node --experimental-strip-types scripts/test-matching.mjs && node scripts/check-collaudo.mjs --self-test && node scripts/test-collaudo-package.mjs",
     "typecheck": "tsc --noEmit",
     "prebuild": "node scripts/prepare-assets.mjs",
-    "predev": "node scripts/prepare-assets.mjs"
+    "predev": "node scripts/prepare-assets.mjs",
+    "check:collaudo": "node scripts/check-collaudo.mjs",
+    "prepare:collaudo": "node scripts/prepare-collaudo.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",

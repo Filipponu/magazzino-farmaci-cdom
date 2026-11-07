@@ -11,3 +11,5 @@ La documentazione originale è conservata in [UPSTREAM_README.md](./UPSTREAM_REA
 ## Estensione C-DOM e collaudo
 
 Le funzionalità di autorizzazione mensile, fornitori, lotti e servizio Docling sono descritte in [COLLAUDO_CDOM.md](COLLAUDO_CDOM.md), con istruzioni per gli ambienti separati e test riproducibili.
+
+Per la predisposizione senza deploy di `magazzino-farmaci-cdom-test` seguire [COLLEGAMENTO_MANUALE.md](COLLEGAMENTO_MANUALE.md). Il dominio desiderato deve ancora essere verificato; la VPS non è stata modificata.

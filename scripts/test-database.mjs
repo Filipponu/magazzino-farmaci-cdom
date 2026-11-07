@@ -54,4 +54,11 @@ await login(operator,'operator@example.test');
 for(let i=0;i<550;i++){const order={...o,id:'00000000-0000-4000-8000-'+String(300000000000+i),items:[{id:5,qty:1}]};await action(order);if(i%10===0)await action(order);}
 const count=Number((await db.query('select count(*) n from pharmacy_movements')).rows[0].n);assert.ok(count>=550);
 console.log('PASS: '+count+' movimenti sintetici; limiti, approvazione e duplicati; ');
-console.log('PASS: autorizzazioni reali PostgreSQL, privacy scorte, soglia minima, ordine idempotente, annullamento, avviso farmacia, bolle una sola volta, duplicati e accesso diretto bloccato.');await scenarios({db,assert,action,login,admin,operator,outsider,o});await db.close();if(url){const {races}=await import('./test-postgres-races.mjs');await races(url);}
+console.log('PASS: autorizzazioni reali PostgreSQL, privacy scorte, soglia minima, ordine idempotente, annullamento, avviso farmacia, bolle una sola volta, duplicati e accesso diretto bloccato.');await scenarios({db,assert,action,login,admin,operator,outsider,o});const fixtures=await fs.readFile('supabase/tests/collaudo-fixtures.sql','utf8');
+await assert.rejects(()=>db.exec(fixtures),/Conferma manualmente/);
+await db.exec("begin;set local cdom.allow_synthetic_seed='yes';"+fixtures+'commit;');
+await db.exec("begin;set local cdom.allow_synthetic_seed='yes';"+fixtures+'commit;');
+assert.equal(Number((await db.query('select count(*) n from pharmacy_products where id between 990001 and 990003')).rows[0].n),3);
+assert.equal((await db.query('select stock from pharmacy_products where id=990001')).rows[0].stock,100);
+console.log('PASS: fixture sintetiche protette, ripetibili senza duplicazioni o ripristini involontari.');
+await db.close();if(url){const {races}=await import('./test-postgres-races.mjs');await races(url);}
