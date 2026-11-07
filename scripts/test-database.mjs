@@ -1,0 +1,31 @@
+process.on('uncaughtException',e=>{console.error(e.message);if(e.internalQuery)console.error(e.internalQuery);process.exit(1);});
+import fs from 'node:fs/promises';
+import {PGlite} from '@electric-sql/pglite';
+import assert from 'node:assert/strict';
+const db=new PGlite();
+await db.exec(`create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit integer,allowed_mime_types text[]);create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;grant usage on schema auth,storage to authenticated;grant select,insert,delete on storage.objects to authenticated;`);
+await db.exec(await fs.readFile('supabase/migrations/202611060001_pharmacy.sql','utf8'));
+const admin='00000000-0000-4000-8000-000000000001',operator='00000000-0000-4000-8000-000000000002',outsider='00000000-0000-4000-8000-000000000003';
+await db.query("insert into auth.users(id)values($1),($2),($3)",[admin,operator,outsider]);
+await db.exec("update pharmacy_settings set owner_email='owner@example.test';insert into pharmacy_products(id,name,unit,stock,minimum,configured)values(5,'Materiale test','pezzi',10,3,1)");
+async function login(id,email){await db.query("select set_config('request.jwt.claim.sub',$1,false),set_config('request.jwt.claims',$2,false)",[id,JSON.stringify({email})]);}
+async function action(payload){return(await db.query('select pharmacy_action($1::jsonb) as r',[JSON.stringify(payload)])).rows[0].r;}
+await login(admin,'owner@example.test');await action({action:'register',first:'Coord',last:'Test',profession:'Infermiere'});
+await login(operator,'operator@example.test');await action({action:'register',first:'Operatore',last:'Test',profession:'OSS'});
+await assert.rejects(()=>action({action:'order',id:'00000000-0000-4000-8000-100000000001',month:'2026-11',note:'',items:[{id:5,qty:7}]}),/autorizzare/);
+await login(admin,'owner@example.test');await action({action:'access',id:operator,enabled:true});
+await login(operator,'operator@example.test');const o={action:'order',id:'00000000-0000-4000-8000-100000000001',month:'2026-11',note:'',items:[{id:5,qty:7}]};await action(o);await action(o);assert.equal((await db.query('select stock from pharmacy_products')).rows[0].stock,3);
+await assert.rejects(()=>action({...o,id:'00000000-0000-4000-8000-100000000002',items:[{id:5,qty:1}]}),/stock_unavailable/);
+const data=(await db.query('select pharmacy_data() as d')).rows[0].d;assert.equal('minimum'in data.products[0],false);assert.equal('stock'in data.products[0],false);assert.equal(data.orders.length,1);
+await assert.rejects(()=>action({action:'stock',id:5,stock:100,minimum:0,version:1}),/riservato/);
+await assert.rejects(()=>db.query('select pharmacy_deliveries()'),/riservate/);
+await login(admin,'owner@example.test');await action({action:'ready',id:o.id});await action({action:'ready',id:o.id});await action({action:'status',id:o.id,status:'Annullato'});assert.equal((await db.query('select stock from pharmacy_products')).rows[0].stock,10);
+await assert.rejects(()=>action({action:'status',id:o.id,status:'Annullato'}),/chiuso/);
+const ticket=(await db.query('select pharmacy_delivery($1::jsonb) as d',[JSON.stringify({action:'ticket',hash:'a'.repeat(64),filename:'test.pdf',size:100,mime:'application/pdf'})])).rows[0].d;
+await db.query('insert into storage.objects(bucket_id,name)values($1,$2)',['bolle',ticket.file_key]);
+const del=async p=>(await db.query('select pharmacy_delivery($1::jsonb) as d',[JSON.stringify(p)])).rows[0].d;
+await del({action:'uploaded',id:ticket.id});await del({action:'review',id:ticket.id,supplier:'Demo',number:'123',date:'2026-11-06',ocr:'',items:[{id:5,qty:12}]});
+const review=(await db.query('select * from pharmacy_deliveries')).rows[0];await del({action:'confirm',id:ticket.id,review});await del({action:'confirm',id:ticket.id,review});assert.equal((await db.query('select stock from pharmacy_products')).rows[0].stock,22);
+const ticket2=await del({action:'ticket',hash:'b'.repeat(64),filename:'test2.pdf',size:100,mime:'application/pdf'});await db.query('insert into storage.objects(bucket_id,name)values($1,$2)',['bolle',ticket2.file_key]);await del({action:'uploaded',id:ticket2.id});await del({action:'review',id:ticket2.id,supplier:'Demo',number:'123',date:'2026-11-06',ocr:'',items:[{id:5,qty:12}]});const review2=(await db.query('select * from pharmacy_deliveries where id=$1',[ticket2.id])).rows[0];await assert.rejects(()=>del({action:'confirm',id:ticket2.id,review:review2}),/duplicate_delivery/);assert.equal((await db.query('select stock from pharmacy_products')).rows[0].stock,22);
+await login(operator,'operator@example.test');await db.exec('set role authenticated');await assert.rejects(()=>db.exec('select * from pharmacy_products'),/permission denied/);const secured=(await db.query('select pharmacy_data() as d')).rows[0].d;assert.equal(secured.user.role,'operator');assert.equal('minimum'in secured.products[0],false);
+console.log('PASS: autorizzazioni reali PostgreSQL, privacy scorte, soglia minima, ordine idempotente, annullamento, avviso farmacia, bolle una sola volta, duplicati e accesso diretto bloccato.');await db.close();

@@ -1,3 +1,9 @@
-# Magazzino farmaci C-DOM
+# Materiali sanitari
 
-Applicazione per ordini operatori, farmacia e magazzino condiviso. Importazione del progetto adattato da Inventory Management (MIT) in corso.
+Versione Next.js e Supabase per Vercel, derivata da [Inventory Management](https://github.com/BoviliusMeidi/inventory-management) di Bovilius Meidi (MIT).
+
+Configurazione, migrazione dei dati, verifiche e pubblicazione: [MIGRAZIONE.md](./MIGRAZIONE.md).
+
+La schermata operatore permette solo l'ordine. Il coordinatore gestisce magazzino, bolle, ruoli e avvisi di ritiro. L'accesso email/password è indipendente da ChatGPT.
+
+La documentazione originale è conservata in [UPSTREAM_README.md](./UPSTREAM_README.md). Le estensioni farmacia sono in `src/app/`, `src/lib/pharmacy/` e `supabase/migrations/`.
