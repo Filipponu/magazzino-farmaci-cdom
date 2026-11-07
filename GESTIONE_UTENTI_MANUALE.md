@@ -1,0 +1,13 @@
+# Gestione manuale utenti — configurazione di collaudo
+
+Codice predisposto, nessun deploy né migrazione cloud eseguiti per questa modifica.
+
+1. Applicare soltanto `supabase/migrations/202611080001_manual_users.sql` al Supabase test esistente. Non rieseguire lo schema iniziale completo.
+2. Configurare `SUPABASE_SERVICE_ROLE_KEY` nelle impostazioni riservate del solo progetto Vercel `magazzino-farmaci-cdom`, Production e Preview. Mai prefisso NEXT_PUBLIC. La chiave pubblica esistente rimane necessaria per login e controlli RLS. La chiave amministrativa non viene inserita nei sorgenti o nei log.
+3. Se non esiste alcun coordinatore attivo, un amministratore del progetto esegue `node scripts/bootstrap-coordinator.mjs` da un terminale privato, con URL e chiave server nell’ambiente e CDOM_COORDINATOR_FIRST/CDOM_COORDINATOR_LAST valorizzati. Non passare segreti come argomenti di comando e non incollarli in chat. Il comando genera e mostra una password temporanea solo in quel terminale: consegnarla personalmente a Monica. Email coordinatore vincolata alla configurazione del database; primo accesso e cambio password obbligatorio. Il bootstrap è rifiutato se esiste già un coordinatore attivo.
+4. Alla futura pubblicazione autorizzata, verificare il login di Monica, il cambio password e creazione di un operatore dalla sezione Operatori. Confermare la password del coordinatore per creazione/ripristino. La password temporanea è restituita una sola volta e rimane esclusivamente nello stato volatile della schermata finché non viene chiusa: nessun recupero successivo, localStorage o audit con segreti. L’email è un identificativo e viene confermata individualmente dall’API amministrativa, senza disabilitare la conferma globale.
+5. Per account esistenti, ruoli e attivazione restano nei controlli già presenti. Gli account manuali sospesi o con sessione revocata non possono usare le RPC né il cambio password applicativo. Il reset revoca sessioni e refresh token, blocca le operazioni fino al cambio personale e registra solo attore, destinatario e tipo di operazione. Se l’API Auth fallisce dopo la revoca, l’account resta protetto e il coordinatore può ripetere il ripristino.
+
+SMTP resta in standby: signup e recupero pubblici mostrano «Rivolgiti al coordinatore»; il trigger Auth blocca creazioni prive del metadato amministrativo anche tramite chiamate dirette al servizio. Non modificare globalmente conferma email o altre protezioni Auth.
+
+Limiti di collaudo: test DB PostgreSQL embedded e API con Supabase simulato. La revoca effettiva su GoTrue e la creazione completa devono essere verificate sul progetto test dopo configurazione della chiave, migrazione e futura autorizzazione al deploy. Nessuna chiave reale è richiesta in chat.

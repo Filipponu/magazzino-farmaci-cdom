@@ -17,6 +17,6 @@ try{
  assert.equal(Number((await db.query('select count(*) n from pharmacy_products')).rows[0].n),135);
  assert.equal((await db.query('select owner_email from pharmacy_settings')).rows[0].owner_email,'monica.silini@finisterre.medicair.it');
  assert.equal((await db.query("select public from storage.buckets where id='bolle'")).rows[0].public,false);
- const hashes=JSON.parse(await fs.readFile(path.join(dir,'migrazioni-sha256.json'),'utf8'));assert.equal(hashes.length,5);
+ const hashes=JSON.parse(await fs.readFile(path.join(dir,'migrazioni-sha256.json'),'utf8'));assert.equal(hashes.length,6);
  console.log('PASS: pacchetto SQL manuale completo eseguito atomicamente su database vuoto; catalogo, coordinatore e Storage privato verificati.');
 }finally{await db.close();}

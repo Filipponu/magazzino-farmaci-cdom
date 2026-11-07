@@ -2,6 +2,10 @@
 
 Stato: solo codice e configurazione locale. Nessun progetto cloud creato, servizio collegato, dominio prenotato, deploy eseguito o intervento sulla VPS. Questa procedura sostituisce le precedenti richieste di collegamento automatico.
 
+## Gestione utenti aggiornata
+
+La gestione utenti è ora manuale e SMTP resta in standby. Per account, primo coordinatore e ripristino senza email seguire `GESTIONE_UTENTI_MANUALE.md`; questa procedura sostituisce le indicazioni di autoregistrazione e recupero email riportate più sotto. Sul database test esistente applicare soltanto la nuova migrazione 202611080001_manual_users.sql.
+
 ## 1. Sorgenti da utilizzare
 
 Repository esistente: `Filipponu/magazzino-farmaci-cdom`. Utilizzare il ramo `collaudo/cdom-2026-11`, che contiene il gestionale aggiornato; `main` non è stato modificato. Non creare un altro repository.
