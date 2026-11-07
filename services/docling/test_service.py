@@ -67,12 +67,25 @@ def test_auth_duplicate_validation_and_errors(monkeypatch):
 
 
 if __name__ == '__main__':
-    from engine import extract
-    path = ROOT / 'difficult-synthetic-200dpi.pdf'
-    path.write_bytes(synthetic_pdf(difficult=True))
-    result = extract(path)
+    import time
+    headers = {'Authorization': 'Bearer ' + os.environ['DOCLING_API_TOKEN'], 'Content-Type': 'application/pdf'}
+    with TestClient(service.app) as client:
+        submitted = client.post('/jobs', headers=headers, content=synthetic_pdf(difficult=True))
+        assert submitted.status_code == 202
+        job = submitted.json()['job']
+        deadline = time.monotonic() + 300
+        while time.monotonic() < deadline:
+            status = client.get('/jobs/' + job, headers=headers).json()
+            if status['status'] in ('done', 'failed'):
+                break
+            time.sleep(1)
+        assert status['status'] == 'done', status
+        result = status['result']
     assert result['verified'] is False
     assert result['dpi'] == 200
     assert 'SYNTH' in result['text'].upper()
     assert len(result['tables']) >= 1
-    print('PASS: real Docling on synthetic image-only 200 DPI PDF, text and table extraction; manual review required.')
+    assert result['number'] == 'SYNTH-2026-001'
+    assert result['tables'][0][0]['Codice'] == 'AB-010'
+    assert result['tables'][0][0]['Quantita'] == '12'
+    print('PASS: authenticated upload -> durable queue -> real Docling process -> result polling; image-only 200 DPI PDF, DDT header and table values; manual review required.')

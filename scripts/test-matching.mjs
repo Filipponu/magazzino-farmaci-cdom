@@ -12,4 +12,6 @@ assert.equal(result[1].id,2);assert.equal(result[1].qty,'');
 assert.equal(result[2].id,0);assert.equal(result[2].qty,'');
 assert.equal(result[3].id,0);assert.equal(result[3].qty,'');
 assert.equal(matchOcr({tables:[[{Codice:'AB-010'}]]},articles,'B')[0].id,3);
+assert.equal(matchOcr({tables:[[{Scadenza:'31/12/2099'}]]},articles,'A')[0].expires,'2099-12-31');
+assert.equal(matchOcr({tables:[[{Scadenza:'31/02/2099'}]]},articles,'A')[0].expires,'');
 console.log('PASS: codici simili distinti, fornitore commerciale, quantità ambigue escluse, revisione sempre obbligatoria.');

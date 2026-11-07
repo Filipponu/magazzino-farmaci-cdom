@@ -87,6 +87,7 @@ revoke all on function public.pharmacy_action_legacy(jsonb) from public,anon,aut
 create function public.pharmacy_action(payload jsonb) returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
 declare o pharmacy_orders;p pharmacy_products;r jsonb;s uuid;reason text:=trim(coalesce(payload->>'reason',''));
 begin
+ if payload->>'action' not in('register','order') and not pharmacy_admin() then raise exception 'Accesso riservato ai coordinatori.';end if;
  if payload->>'action' in('approve','reject','supplier','article','product','limit') then
   if not pharmacy_admin() then raise exception 'Accesso riservato ai coordinatori.';end if;
   case payload->>'action'

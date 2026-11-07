@@ -51,6 +51,6 @@ La workflow `.github/workflows/cdom-collaudo.yml` aggiunge PostgreSQL 17 con 20 
 
 ## Stato degli ambienti esterni
 
-Build/typecheck, test PostgreSQL embedded, matching codici e test API OCR sono stati eseguiti localmente. Le schermate sono state controllate con una fixture grafica temporanea, rimossa prima del commit: questo non equivale a una prova Supabase Auth/Storage cloud.
+Build/typecheck, test PostgreSQL embedded, matching codici, PDF orizzontale di 11 pagine e test API OCR sono stati eseguiti localmente. È passato anche il flusso OCR reale autenticato con coda, processo separato e polling su PDF sintetico a 200 DPI; la verifica ha corretto l’esclusione predefinita delle intestazioni DDT dall’export Docling. Su GitHub Actions è passata la prova su PostgreSQL 17 con 20 connessioni simultanee, oltre a installazione, test, typecheck, lint e build Linux. Le schermate sono state controllate con una fixture grafica temporanea, rimossa prima del commit: questo non equivale a una prova Supabase Auth/Storage cloud.
 
 Il collegamento Vercel al team restituisce ancora 403 dopo il tentativo di autorizzazione. Nel pannello Vercel il repository risulta suggerito per importazione, senza un progetto già collegato. Supabase di collaudo, SMTP e VPS non sono stati indicati/configurati. Non esiste pertanto ancora un URL di collaudo cloud funzionante. Gli esiti finali delle verifiche OCR e CI sono riportati nella consegna del ramo/PR.
