@@ -1,5 +1,9 @@
 # Requisiti funzionali C-DOM — coordinatore e operatore
 
+## Configurazione coordinatore
+- Email coordinatore: `monica.silini@finister.medicare.it` (indirizzo comunicato dall'utente; da verificare prima di attivare notifiche o invii).
+- Usare questa email per l'account coordinatore e come destinatario delle notifiche di richieste da autorizzare, dopo verifica dell'indirizzo e delle impostazioni di accesso.
+
 ## Ruoli
 - Operatore: catalogo prodotti, richiesta materiali, stato richieste, storico personale. Non modifica giacenze o limiti.
 - Coordinatore: prodotti, fornitori, giacenze, lotti, scadenze, bolle, richieste, autorizzazioni, audit.
