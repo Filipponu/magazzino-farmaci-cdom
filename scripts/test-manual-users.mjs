@@ -27,7 +27,9 @@ await db.query("update auth.users set encrypted_password='SYNTHETIC-PERSONAL' wh
 assert.equal((await db.query('select pharmacy_password_ok() ok')).rows[0].ok,true);
 await manage(a,b,'reset');
 assert.equal((await db.query('select count(*) n from auth.sessions where user_id=$1',[b])).rows[0].n,0);
-await db.query("update auth.users set encrypted_password='SYNTHETIC-TEMPORARY' where id=$1",[b]);
+await db.query("update auth.users set encrypted_password='SYNTHETIC-TEMPORARY',raw_app_meta_data=raw_app_meta_data||'{\"cdom_reset_nonce\":\"reset1\"}'::jsonb where id=$1",[b]);
+assert.equal((await db.query('select password_change_required from pharmacy_profiles where id=$1',[b])).rows[0].password_change_required,true);
+await db.query("update auth.users set encrypted_password='SYNTHETIC-TEMPORARY-2',raw_app_meta_data=raw_app_meta_data||'{\"cdom_reset_nonce\":\"reset2\"}'::jsonb where id=$1",[b]);
 assert.equal((await db.query('select password_change_required from pharmacy_profiles where id=$1',[b])).rows[0].password_change_required,true);
 assert.equal((await db.query('select pharmacy_live_session() ok')).rows[0].ok,false);
 const newSession='00000000-0000-4000-8000-000000000005';await db.query('insert into auth.sessions values($1,$2)',[newSession,b]);

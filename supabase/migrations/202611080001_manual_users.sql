@@ -1,10 +1,9 @@
 -- Manual account provisioning. Never stores temporary passwords.
 alter table public.pharmacy_profiles add column manual_account boolean not null default false;
-alter table public.pharmacy_profiles add column admin_reset_pending boolean not null default false;
 create or replace function public.pharmacy_password_changed() returns trigger language plpgsql security definer set search_path=public,pg_temp as $$
 begin
  if NEW.encrypted_password is distinct from OLD.encrypted_password and length(coalesce(NEW.encrypted_password,''))>0 then
-  update pharmacy_profiles set password_change_required=admin_reset_pending,admin_reset_pending=false where id=NEW.id;
+  update pharmacy_profiles set password_change_required=((NEW.raw_app_meta_data->>'cdom_reset_nonce') is distinct from (OLD.raw_app_meta_data->>'cdom_reset_nonce')) where id=NEW.id;
   insert into pharmacy_audit(actor,action,entity) values(NEW.id,'password_changed',NEW.id::text);
  end if;return NEW;
 end;$$;
@@ -45,10 +44,10 @@ begin
   length(trim(coalesce(details->>'first',''))) not between 1 and 60 or length(trim(coalesce(details->>'last',''))) not between 1 and 60 then raise exception 'Dati non validi.';end if;
   insert into pharmacy_profiles(id,email,first,last,profession,role,enabled,password_change_required,manual_account)
   values(target_id,details->>'email',trim(details->>'first'),trim(details->>'last'),details->>'profession',details->>'role',true,true,true);
- elsif operation='reset' then
+ elsif operation in('reset','reset_done') then
   select * into t from pharmacy_profiles where id=target_id for update;
   if t.id is null then raise exception 'Account non trovato.';end if;
-  update pharmacy_profiles set password_change_required=true,manual_account=true,admin_reset_pending=true where id=target_id;
+  update pharmacy_profiles set password_change_required=true,manual_account=true where id=target_id;
   delete from auth.sessions where user_id=target_id;
   delete from auth.refresh_tokens where user_id=target_id::text;
  else raise exception 'Operazione non valida.';end if;

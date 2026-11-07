@@ -1,5 +1,5 @@
 import 'server-only';
-import {randomBytes} from 'node:crypto';
+import {randomBytes,randomUUID} from 'node:crypto';
 import {createClient} from '@supabase/supabase-js';
 import {session,origin,response,rpc} from '@/lib/pharmacy/server';
 export const runtime='nodejs';
@@ -34,8 +34,10 @@ export async function POST(req:Request){
   if(b.action==='reset'&&typeof b.id==='string'&&/^[0-9a-f-]{36}$/i.test(b.id)&&b.id!==user.id){
    const guard=await service.rpc('pharmacy_manage_account',{actor_id:user.id,target_id:b.id,operation:'reset'});
    if(guard.error)return response({error:'Ripristino non autorizzato.'},403);
-   const result=await service.auth.admin.updateUserById(b.id,{password});
+   const result=await service.auth.admin.updateUserById(b.id,{password,app_metadata:{cdom_reset_nonce:randomUUID()}});
    if(result.error)return response({error:'Account bloccato per ripristino. Ripeti l’operazione.'},400);
+   const revoked=await service.rpc('pharmacy_manage_account',{actor_id:user.id,target_id:b.id,operation:'reset_done'});
+   if(revoked.error)return response({error:'Ripristino da completare. Ripeti l’operazione.'},400);
    return response({password});
   }
   return response({error:'Operazione non valida.'},400);
