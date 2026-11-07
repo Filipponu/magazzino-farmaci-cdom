@@ -1,7 +1,7 @@
 # Requisiti funzionali C-DOM — coordinatore e operatore
 
 ## Configurazione coordinatore
-- Email coordinatore: `monica.silini@finister.medicare.it` (indirizzo comunicato dall'utente; da verificare prima di attivare notifiche o invii).
+- Email coordinatore: `monica.silini@adomi.it` (indirizzo riscontrato nella corrispondenza Gmail; verificare autorizzazione e consegna prima degli invii).
 - Usare questa email per l'account coordinatore e come destinatario delle notifiche di richieste da autorizzare, dopo verifica dell'indirizzo e delle impostazioni di accesso.
 
 ## Ruoli
