@@ -46,6 +46,8 @@
 .op-list-catalog .op-reserve-note{flex-basis:100%;font-size:12px;color:#61718b;order:5}
 .curasistema-credit{padding:14px 20px;text-align:center;font-size:12px;line-height:16px;color:#65738a;background:#f3f6fc;letter-spacing:.2px}body:has(.app)>.curasistema-credit{margin-left:240px}.app,.registration{min-height:calc(100svh - 44px)}@media(max-width:1150px){body:has(.app)>.curasistema-credit{margin-left:205px}}@media(max-width:760px){body:has(.app)>.curasistema-credit{margin-left:0}}
 /* Allow narrow screens to wrap content rather than stretch the page. */
+.sidebar .profile>a{display:flex;align-items:center;justify-content:center;gap:6px;min-width:62px;min-height:44px;color:#fff;font-size:12px;flex-shrink:0}.sidebar .profile>div:not(.avatar){min-width:0}.sidebar .profile strong{overflow-wrap:anywhere}
+@media(max-width:760px){.app .sidebar .profile{display:flex;align-items:center;gap:10px;margin:14px 0 0;padding:12px 0 0;border-top:1px solid #34445e}.app .sidebar .profile>a{margin-left:auto;display:flex;border:1px solid #53647e;border-radius:7px;padding:0 10px}.app .sidebar .profile strong{font-size:12px}.app .sidebar .profile small{display:block;font-size:11px}}
 .app .main,.app .content,.registration>*,.op-article>div{min-width:0}
 @media(max-width:760px){
  .app,.registration,.welcome{width:100%;max-width:100%}
