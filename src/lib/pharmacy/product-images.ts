@@ -1,5 +1,5 @@
 // Illustrative catalog photographs. The product name, size and unit identify the requested material.
-export type ProductImage={src:string;source:string;credit:string};
+export type ProductImage={src:string;source:string;credit:string;caption?:string};
 const images:Record<string,ProductImage>={
   "ACTICOAT FLEX 3 10X10, SU PRESCRIZIONE SPECIALISTICA": {
     "src": "https://www.marksteypharmacy.co.uk/cdn/shop/products/acticoatflex3.jpg?v=1618296497",
@@ -665,6 +665,12 @@ const images:Record<string,ProductImage>={
     "src": "https://apothekeloreto.de/image/cache/data/907144467-735x735.jpg",
     "source": "https://apothekeloreto.de/sterile-einwegspritze-60-ml-konuskatheter-1-spritze",
     "credit": "Fotografia di catalogo"
+  },
+  "PROTECT FILM ROTOLO 10CMX10MT": {
+    "src": "https://www.cfs.it/cdn/shop/files/MM0009764.jpg?v=1740105728",
+    "source": "https://www.cfs.it/products/film-adesivo-trasparente-in-rotolo-protect-film-cm-10-x-10-mt",
+    "credit": "CFS · Farmac-Zabban",
+    "caption": "Foto della linea; misura indicata nel catalogo"
   },
   "SPUGNETTA PRESAPONATA": {
     "src": "https://www.homecaremedicalsupplies.ie/cdn/shop/files/NATURAL_PRE_SOAPED_FOAM_SPONGE_50PK_ad9589e6-f6bb-483b-87a7-398e8557a2d5.png?v=1751925207",
