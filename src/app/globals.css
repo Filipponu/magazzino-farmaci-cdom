@@ -45,3 +45,42 @@
 
 .op-list-catalog .op-reserve-note{flex-basis:100%;font-size:12px;color:#61718b;order:5}
 .curasistema-credit{padding:14px 20px;text-align:center;font-size:12px;line-height:16px;color:#65738a;background:#f3f6fc;letter-spacing:.2px}body:has(.app)>.curasistema-credit{margin-left:240px}.app,.registration{min-height:calc(100svh - 44px)}@media(max-width:1150px){body:has(.app)>.curasistema-credit{margin-left:205px}}@media(max-width:760px){body:has(.app)>.curasistema-credit{margin-left:0}}
+/* Allow narrow screens to wrap content rather than stretch the page. */
+.app .main,.app .content,.registration>*,.op-article>div{min-width:0}
+@media(max-width:760px){
+ .app,.registration,.welcome{width:100%;max-width:100%}
+ .registration{grid-template-columns:minmax(0,1fr)}
+ .register-story,.registration main{min-width:0;padding-left:24px;padding-right:24px}
+ .registration .brand{font-size:21px;line-height:1.3;overflow-wrap:anywhere}
+ .register-story h1{font-size:32px;line-height:1.15;letter-spacing:-1px;overflow-wrap:anywhere}
+ .registration h2{font-size:25px;line-height:1.3;overflow-wrap:anywhere}
+ .registration form,.registration input,.registration button{max-width:100%;min-width:0}
+ .registration input{font-size:16px}
+ .registration .status-actions{gap:14px;align-items:flex-start;flex-direction:column}
+ .registration .status-actions a{white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+ .app .heading,.app .panel-title,.app .toolbar,.app .topbar,.app .topbar-actions,.app .sync{flex-wrap:wrap;min-width:0}
+ .app .heading>div,.app .topbar>span,.app .topbar-actions>*{min-width:0;max-width:100%}
+ .app .heading h1,.app h2,.app h3,.app p,.app strong,.app label,.app .badge,.app .notice{overflow-wrap:anywhere}
+ .app .content{width:100%;max-width:100%;padding-left:16px;padding-right:16px}
+ .app .primary,.app .secondary,.app .badge,.app .op-availability,.app .op-prescription{white-space:normal;max-width:100%}
+ .app .stats,.app .cdom-section .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .app .stat,.app .cdom-stat,.app .cdom-stat>span{min-width:0}
+ .app .cdom-section .cdom-stat{flex-wrap:wrap;align-content:start}
+ .app .cdom-grid{grid-template-columns:minmax(0,1fr)}
+ .app .panel:has(>table),.app .table-wrap{max-width:100%;overflow-x:auto}
+ .app .panel-title .month{flex-wrap:wrap;max-width:100%}
+ .app .toolbar>*,.app .cdom-form>*,.app .delivery-fields>*{min-width:0;max-width:100%}
+ .app input,.app select,.app textarea{min-width:0;max-width:100%;font-size:16px}
+ .op-list-catalog .op-filters>*{min-width:0;max-width:100%}
+ .op-list-catalog .op-search input{width:100%;min-width:0}
+ .op-list-catalog .op-category{flex:1 1 100%}
+ .op-catalog-table tr{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .op-article{width:100%;gap:10px}.op-article strong{overflow-wrap:anywhere}
+ .op-category-badge{max-width:100%;overflow-wrap:anywhere}
+ .op-list-catalog .op-catalog-table{overflow:visible}
+ .op-list-checkout>div{min-width:0;flex:1 1 140px}
+ .op-list-checkout .primary{flex:1 1 140px;justify-content:center}
+ .op-order-actions,.app footer{flex-wrap:wrap}
+ .app footer>span{min-width:0;overflow-wrap:anywhere}
+ .welcome{padding:40px 24px}.welcome h1{font-size:32px;overflow-wrap:anywhere}
+}
