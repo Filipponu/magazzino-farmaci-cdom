@@ -1,7 +1,8 @@
 'use client';
 
 import {useState} from 'react';
-import {ArrowUpRight, Check, Minus, Package, Plus, Search, ShoppingBag, X} from 'lucide-react';
+import {ArrowUpRight, Check, Minus, Plus, Search, ShoppingBag, X} from 'lucide-react';
+import ProductPhoto from './product-photo';
 
 type Product = {id:number; name:string; unit:string; pack:string; category?:string; stock:number; minimum:number; configured:number; orderLimit?:number};
 type Props = {
@@ -37,9 +38,11 @@ export default function OperatorCatalog({products,cart,busy,onQuantity,onReview}
       <div className="op-result-count" role="status">{shown.length} {shown.length===1?'materiale':'materiali'}<span>Quantità espresse nell’unità indicata</span></div>
       <div className="op-product-grid">{shown.map(product=>{
         const max=limit(product), value=cart[product.id]||0;
+        const prescription=/\bsu prescrizione(?: specialistica)?\b/i.test(product.name);
+        const displayName=product.name.replace(/[,\s]*\bsu prescrizione(?: specialistica)?\b/ig,'').trim();
         return <article key={product.id} className={'op-product'+(value>0?' is-selected':'')+(max===0?' is-unavailable':'')}>
-          <div className="op-product-top"><span className="op-product-icon"><Package size={23}/></span><span className={'op-availability '+(max>0?'can-order':'cannot-order')}>{max>0?<Check size={13}/>:null}{max>0?'Ordinabile':'Non disponibile'}</span></div>
-          <span className="op-product-category">{product.category||'Materiale sanitario'}</span><h3>{product.name}</h3><p className="op-pack">{product.pack||'Unità singola'}</p>
+          <div className="op-product-top"><ProductPhoto name={product.name}/><span className={'op-availability '+(max>0?'can-order':'cannot-order')}>{max>0?<Check size={13}/>:null}{max>0?'Ordinabile':'Non disponibile'}</span></div>
+          <span className="op-product-category">{product.category||'Materiale sanitario'}</span><h3>{displayName}</h3>{prescription&&<span className="op-prescription">Su prescrizione specialistica</span>}<p className="op-pack">{product.pack||'Unità singola'}</p>
           <div className="op-product-bottom"><span className="op-unit">Quantità in <strong>{product.unit}</strong></span>{max>0?<div className="op-stepper"><button type="button" disabled={busy||value<=0} aria-label={'Riduci quantità '+product.name} onClick={()=>change(product,value-1)}><Minus size={17}/></button><input type="number" inputMode="numeric" min={0} max={max} step={1} disabled={busy} aria-label={'Quantità '+product.name} value={value||''} placeholder="0" onChange={e=>change(product,e.target.valueAsNumber||0)}/><button type="button" disabled={busy||value>=max} aria-label={'Aumenta quantità '+product.name} onClick={()=>change(product,value+1)}><Plus size={17}/></button></div>:<span className="op-unavailable-note">Al momento non ordinabile</span>}</div>
         </article>;
       })}</div>
