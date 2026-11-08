@@ -11,6 +11,6 @@ export default function ProductPhoto({name}:{name:string}) {
     {/* External sources are loaded lazily and receive no page referrer. */}
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img src={photo.src} alt={'Foto illustrativa: '+name} width={160} height={120} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={()=>setFailed(photo.src)}/>
-    <figcaption>Immagine illustrativa · <a href={photo.source} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" aria-label={'Fonte immagine '+name+': '+photo.credit}>{photo.credit}</a></figcaption>
+    <figcaption>Immagine illustrativa</figcaption>
   </figure>;
 }
