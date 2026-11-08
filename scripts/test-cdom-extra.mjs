@@ -28,8 +28,10 @@ export async function scenarios({db,assert,action,login,admin,operator,outsider,
  await login(admin,'owner@example.test');await action({action:'limit',id:pid,limit:''});
  // Actual PostgreSQL FEFO allocation and exact restoration, expired lots quarantined.
  await db.query("insert into pharmacy_lots(product_id,code,expires,quantity) values($1,'SCADUTO-SINTETICO','2000-01-01',80),($1,'VALIDO-SINTETICO','2099-01-01',6)",[pid]);
- await login(operator,'operator@example.test');await assert.rejects(()=>action(request(6,7)),/stock_unavailable/);
- await action(request(7,2));assert.equal((await db.query("select quantity from pharmacy_lots where code='VALIDO-SINTETICO'")).rows[0].quantity,4);
+ await login(operator,'operator@example.test');await assert.rejects(()=>action(request(6,12)),/stock_unavailable/);
+ await action(request(7,2));assert.equal((await db.query("select quantity from pharmacy_lots where code='VALIDO-SINTETICO'")).rows[0].quantity,6);
+ await login(admin,'owner@example.test');await action({action:'approve',id:request(7).id,reason:'Eccezione riserva sintetica'});
+ assert.equal((await db.query("select quantity from pharmacy_lots where code='VALIDO-SINTETICO'")).rows[0].quantity,4);
  await login(admin,'owner@example.test');await action({action:'status',id:request(7).id,status:'Annullato'});
  assert.equal((await db.query("select quantity from pharmacy_lots where code='VALIDO-SINTETICO'")).rows[0].quantity,6);
  await action({action:'stock',id:pid,stock:86,minimum:5,version:(await db.query('select version from pharmacy_products where id=$1',[pid])).rows[0].version});
@@ -37,8 +39,8 @@ export async function scenarios({db,assert,action,login,admin,operator,outsider,
  // Concurrent API-like submissions. PGlite queues transactions; a real multi-session
  // race test is deliberately not claimed by this embedded test.
  const batch=await Promise.allSettled(Array.from({length:10},(_,i)=>action(request(100+i,1))));
- assert.equal(batch.filter(r=>r.status==='fulfilled').length,1);
- assert.equal((await db.query('select stock from pharmacy_products where id=$1',[pid])).rows[0].stock,85);
+ assert.equal(batch.filter(r=>r.status==='fulfilled').length,10);
+ assert.equal((await db.query('select stock from pharmacy_products where id=$1',[pid])).rows[0].stock,86);
  await db.exec('set role authenticated');
  for(const table of ['pharmacy_suppliers','pharmacy_lots','pharmacy_articles','pharmacy_audit','pharmacy_delivery_lots','pharmacy_ocr'])await assert.rejects(()=>db.query('select * from '+table),/permission denied/);
  await assert.rejects(()=>db.query('select pharmacy_action_legacy($1::jsonb)',[JSON.stringify({action:'seed'})]),/permission denied/);

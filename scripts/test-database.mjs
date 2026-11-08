@@ -21,7 +21,7 @@ await assert.rejects(()=>action({action:'order',id:'00000000-0000-4000-8000-1000
 await db.exec("update auth.users set encrypted_password='SYNTHETIC-NOT-A-PASSWORD'");
 await login(admin,'owner@example.test');await action({action:'access',id:operator,enabled:true});
 await login(operator,'operator@example.test');const o={action:'order',id:'00000000-0000-4000-8000-100000000001',month:'2026-11',note:'',items:[{id:5,qty:7}]};await action(o);await action(o);assert.equal((await db.query('select stock from pharmacy_products')).rows[0].stock,3);
-await assert.rejects(()=>action({...o,id:'00000000-0000-4000-8000-100000000002',items:[{id:5,qty:1}]}),/stock_unavailable/);
+await assert.rejects(()=>action({...o,id:'00000000-0000-4000-8000-100000000002',items:[{id:5,qty:4}]}),/stock_unavailable/);
 const data=(await db.query('select pharmacy_data() as d')).rows[0].d;assert.equal('minimum'in data.products[0],false);assert.equal('stock'in data.products[0],false);assert.equal(data.orders.length,1);
 await assert.rejects(()=>action({action:'stock',id:5,stock:100,minimum:0,version:1}),/riservato/);
 await assert.rejects(()=>db.query('select pharmacy_deliveries()'),/riservate/);
@@ -72,4 +72,5 @@ await db.exec("begin;set local cdom.allow_synthetic_seed='yes';"+fixtures+'commi
 assert.equal(Number((await db.query('select count(*) n from pharmacy_products where id between 990001 and 990003')).rows[0].n),3);
 assert.equal((await db.query('select stock from pharmacy_products where id=990001')).rows[0].stock,100);
 console.log('PASS: fixture sintetiche protette, ripetibili senza duplicazioni o ripristini involontari.');
+const {reserve20}=await import('./test-reserve20.mjs');await reserve20({db,assert,action,login,admin,operator,o});
 await db.close();if(url){const {races}=await import('./test-postgres-races.mjs');await races(url);}
