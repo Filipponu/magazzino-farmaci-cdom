@@ -4,8 +4,8 @@ import {randomUUID} from 'node:crypto';
 export async function races(url){
  const pool=new pg.Pool({connectionString:url,max:20});
  const admin='00000000-0000-4000-8000-000000000001',user='00000000-0000-4000-8000-000000000002';
- const adminCall=async payload=>{const c=await pool.connect();try{await c.query("select set_config('request.jwt.claim.sub',$1,false)",[admin]);return await c.query('select pharmacy_action($1::jsonb)',[JSON.stringify(payload)]);}finally{c.release();}};
- const submit=async(id,product)=>{const c=await pool.connect();try{await c.query("select set_config('request.jwt.claim.sub',$1,false),set_config('request.jwt.claims',$2,false)",[user,JSON.stringify({email:'operator@example.test'})]);await c.query('set role authenticated');return await c.query('select pharmacy_action($1::jsonb)',[JSON.stringify({action:'order',id,month:'2026-11',note:'Test simultaneo sintetico',items:[{id:product,qty:1}]})]);}finally{await c.query('reset role');c.release();}};
+ const adminCall=async(payload,actor=admin)=>{const c=await pool.connect();try{await c.query("select set_config('request.jwt.claim.sub',$1,false)",[actor]);return await c.query('select pharmacy_action($1::jsonb)',[JSON.stringify(payload)]);}finally{c.release();}};
+ const submit=async(id,product,actor=user)=>{const c=await pool.connect();try{await c.query("select set_config('request.jwt.claim.sub',$1,false),set_config('request.jwt.claims',$2,false)",[actor,JSON.stringify({email:'operator@example.test'})]);await c.query('set role authenticated');return await c.query('select pharmacy_action($1::jsonb)',[JSON.stringify({action:'order',id,month:'2026-11',note:'Test simultaneo sintetico',items:[{id:product,qty:1}]})]);}finally{await c.query('reset role');c.release();}};
  try{
   await pool.query("insert into pharmacy_products(id,name,unit,stock,minimum,configured) values(900001,'RACE SYNTHETIC','pezzi',1,0,1),(900002,'MONTHLY RACE SYNTHETIC','pezzi',1000,0,1)");
   const reserveIds=Array.from({length:20},()=>randomUUID());
@@ -30,6 +30,23 @@ export async function races(url){
   await adminCall({action:'limit',id:900002,limit:''});
   const same=randomUUID();await Promise.all(Array.from({length:20},()=>submit(same,900002)));
   assert.equal((await pool.query('select stock from pharmacy_products where id=900002')).rows[0].stock,979);
+  await adminCall({action:'roles',id:admin,roles:['coordinator','operator']});
+  const reviewer=randomUUID();await pool.query('insert into auth.users(id)values($1)',[reviewer]);
+  await pool.query("insert into pharmacy_profiles(id,email,first,last,profession,role,enabled,password_change_required)values($1,'reviewer@example.test','Secondo','Coordinatore','Infermiere','coordinator',true,false)",[reviewer]);
+  await pool.query("insert into pharmacy_products(id,name,unit,stock,configured)values(900003,'PERSONAL RACE SYNTHETIC','pezzi',1,1)");
+  const personalIds=Array.from({length:20},()=>randomUUID());
+  await Promise.all(personalIds.map(id=>submit(id,900003,admin)));
+  assert.equal((await pool.query('select stock from pharmacy_products where id=900003')).rows[0].stock,1);
+  await assert.rejects(()=>adminCall({action:'approve',id:personalIds[0],reason:'Autorizzazione personale vietata'}),/altro coordinatore/);
+  await Promise.all(personalIds.map(id=>adminCall({action:'approve',id,reason:'Verifica altro coordinatore'},reviewer)));
+  assert.equal((await pool.query('select stock from pharmacy_products where id=900003')).rows[0].stock,1);
+  await assert.rejects(()=>adminCall({action:'status',id:personalIds[0],status:'In preparazione'}),/altro coordinatore/);
+  const preparations=await Promise.allSettled(personalIds.map(id=>adminCall({action:'status',id,status:'In preparazione'},reviewer)));
+  assert.equal(preparations.filter(r=>r.status==='fulfilled').length,1);
+  assert.equal((await pool.query('select stock from pharmacy_products where id=900003')).rows[0].stock,0);
+  const prepared=(await pool.query('select * from pharmacy_orders where id=any($1) and reserved',[personalIds])).rows;
+  assert.equal(prepared.length,1);assert.equal(prepared[0].prepared_by,reviewer);
+  console.log('PASS: doppio ruolo PostgreSQL reale: 20 ordini personali, nessuno scarico alla richiesta o approvazione, divieto di autopreparazione, una sola preparazione concorrente con disponibilità 1.');
   console.log('PASS: PostgreSQL multi-sessione, 20 connessioni concorrenti: riserva 20%, nessun prelievo prima della decisione, una sola eccezione con scorta residua 1, prima autorizzazione mensile, 19 approvazioni esplicite, duplicato riservato una sola volta.');
  }finally{await pool.end();}
 }
