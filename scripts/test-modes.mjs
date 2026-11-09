@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {modeFor,rolesFor} from '../src/lib/pharmacy/modes.ts';
+const both={role:'coordinator',roles:['coordinator','operator'],mode:'operator'};
+assert.equal(modeFor(both),'operator');assert.equal(modeFor(both,'coordinator'),'coordinator');
+assert.equal(modeFor({...both,roles:['operator']},'coordinator'),'operator');
+assert.equal(modeFor({...both,roles:['coordinator']}),'coordinator');
+assert.deepEqual(rolesFor({role:'coordinator',roles:[]} ),[]);
+assert.deepEqual(rolesFor({roles:['admin','operator']}),['operator']);
+const source=await readFile('src/app/ui.tsx','utf8');
+for(const component of ['deliveries','management','manual-users','coordinator-tools'])assert.ok(!new RegExp("import [^\\n]+ from './"+component+"'").test(source),'Nessun import statico amministrativo: '+component);
+assert.ok(source.includes("const Management=dynamic(()=>import('./management'))"));
+assert.ok(source.includes("onChange={mode=>{void switchMode(mode);}}"));
+assert.ok(!source.includes("href={admin?'/operatore':'/coordinatore'}"),'Cambio modalità senza navigazione/login');
+console.log('PASS: preferenze modalità, revoca ruoli e componenti amministrativi caricati su richiesta.');

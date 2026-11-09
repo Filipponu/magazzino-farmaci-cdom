@@ -1,0 +1,19 @@
+{
+  "repository": "Filipponu/magazzino-farmaci-cdom",
+  "branch": "collaudo/cdom-2026-11",
+  "vercelProjectName": "magazzino-farmaci-cdom-test",
+  "requestedAppUrl": "https://magazzino-farmaci-cdom-test.vercel.app",
+  "domainAvailabilityVerified": false,
+  "supabaseProjectName": "magazzino-farmaci-cdom-test",
+  "coordinatorEmail": "monica.silini@finisterre.medicair.it",
+  "automaticDeployment": false,
+  "externalServicesConnected": false,
+  "ocr": {
+    "engine": "Tesseract.js",
+    "execution": "browser",
+    "pdfRenderer": "PDF.js",
+    "maxPages": 20,
+    "maxFileMiB": 12,
+    "serverRequired": false
+  }
+}

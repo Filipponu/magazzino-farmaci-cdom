@@ -1,0 +1,40 @@
+name: C-DOM collaudo sintetico
+on:
+  push:
+    branches: ['collaudo/**']
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: cdom-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  database-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: cdom_synthetic_test
+          POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-synthetic
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - run: npm run test:ocr
+      - name: Real PostgreSQL and simultaneous requests
+        run: node --experimental-strip-types scripts/test-database.mjs
+        env:
+          TEST_DATABASE_URL: postgres://postgres:${{ github.run_id }}-${{ github.run_attempt }}-synthetic@localhost:5432/cdom_synthetic_test
+          ALLOW_SYNTHETIC_DB: 'yes'
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
