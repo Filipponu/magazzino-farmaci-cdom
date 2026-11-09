@@ -20,6 +20,7 @@ export async function POST(req:Request){
   const service=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
   const password=randomBytes(24).toString('base64url')+'aA9!';
   if(b.action==='create'){
+   if(b.roles!==undefined&&(!Array.isArray(b.roles)||b.roles.length<1||b.roles.length>2||new Set(b.roles).size!==b.roles.length||!b.roles.every((role:unknown)=>role==='coordinator'||role==='operator')||!b.roles.includes(b.role)))return response({error:'Verifica i ruoli del nuovo account.'},400);
    if(typeof b.email!=='string'||!/^\S+@\S+\.\S+$/.test(b.email)||b.email.length>254||
     !['first','last'].every(k=>typeof b[k]==='string'&&b[k].trim().length>0&&b[k].trim().length<=60)||
     !['Infermiere','OSS','Fisioterapista'].includes(b.profession)||!['coordinator','operator'].includes(b.role))return response({error:'Verifica i dati del nuovo account.'},400);
@@ -27,7 +28,7 @@ export async function POST(req:Request){
    const result=await service.auth.admin.createUser({email,password,email_confirm:true,app_metadata:{cdom_managed:true}});
    if(result.error||!result.data.user)return response({error:'Creazione non riuscita: verifica che l’email non sia già utilizzata.'},400);
    const id=result.data.user.id;
-   const profile=await service.rpc('pharmacy_manage_account',{actor_id:user.id,target_id:id,operation:'create',details:{email,first:b.first,last:b.last,profession:b.profession,role:b.role}});
+   const profile=await service.rpc('pharmacy_manage_account',{actor_id:user.id,target_id:id,operation:'create',details:{email,first:b.first,last:b.last,profession:b.profession,role:b.role,...(b.roles?{roles:b.roles}:{})}});
    if(profile.error){await service.auth.admin.deleteUser(id);return response({error:'Creazione del profilo non riuscita.'},400);}
    return response({password,email});
   }
